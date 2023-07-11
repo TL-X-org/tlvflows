@@ -1,0 +1,66 @@
+CAPI=2:
+name : ::makerchip_top:0
+
+filesets:
+    makerchip_tlv:
+        files:
+            - top.tlv 
+        file_type: TLVerilogSource
+
+    makerchip_gen:
+        files:
+            - top.sv 
+        file_type: systemVerilogSource
+
+    makerchip_tb:
+        files:
+            - tb.sv
+        file_type: systemVerilogSource
+    
+    makerchip_includes:
+        files:
+            - includes/pseudo_rand.sv
+        file_type: systemVerilogSource
+
+targets:
+    sandpiper:
+        default_tool: sandpipersaas
+        filesets: [makerchip_tlv]
+        
+        tools:
+            sandpipersaas:
+                sandpiper_saas:
+                    - --bestsv
+                    - --inlineGen
+                    - --fmtFlatSignals
+                    - --noline
+                output_file: 
+                    - "top.sv"
+        toplevel: [top]
+        
+# Simulate after generating the sv file from running sandpiper
+    simulate:
+        default_tool: vcs
+        filesets: [makerchip_gen, makerchip_includes, makerchip_tb]
+
+        tools:
+            vcs:
+                vcs_options:
+                    - +incdir+./includes
+            modelsim:
+            xsim:
+            xcelium:
+        toplevel: [tb]
+
+    synth:
+        default_tool : design_compiler
+        filesets: [makerchip_gen]
+        tools:
+            design_compiler:
+                script_dir: "../../../synth/dc"
+                dc_script:  "synth.tcl"
+                report_dir: "report"
+                target_library: "/home/unga/shg/work/FreePDK45/osu_soc/lib/files/gscl45nm.db"
+                libs: "/home/unga/shg/work/FreePDK45/osu_soc/lib/files/gscl45nm.db"
+                jobs: 1              
+        toplevel : [top]

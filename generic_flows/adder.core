@@ -1,0 +1,78 @@
+CAPI=2:
+name : ::adder:0
+filesets:
+    rtl:
+        files:
+            - 1_adder.tlv 
+        file_type: TLVerilogSource
+
+
+targets:
+    sandpiper:
+        default_tool: sandpipersaas
+        filesets: [rtl]
+        tools:
+            sandpipersaas:
+                sandpiper_saas:
+                    - --bestsv 
+                    - --inlineGen
+                output_dir: 
+                    - "out1"
+                output_file: 
+                    - 1_adder_rtl_2.sv
+        toplevel: [inverter]
+
+# This target invokes a custom flow built by chaining together Sandpiper and Synopsys Design Compiler 
+    sp_dc:
+        filesets: [rtl]
+        toplevel: [inverter]
+        flow: sp_dc
+        flow_options:
+            sandpiper_saas:
+                    - --bestsv 
+                    - --inlineGen
+                    - --noline
+            output_file: 
+                    - 1_adder_rtl_2.sv
+            script_dir: "<absolute_path_to_this_directory>/constraints"
+            dc_script:  "synth.tcl"
+            report_dir: "report"
+            jobs: 1
+            target_library: "<absolute_path_to_your_library>.db"
+            libs: "<absolute_path_to_any_other_library.db"
+
+# This target is used to run the sandpiper as a tool to convert TL-Verilog to SystemVerilog or Verilog
+    sandpiper_astool:
+        filesets: [rtl]
+        toplevel: [inverter]
+        flow: sim
+        flow_options:
+            tool: sandpipersaas
+            sandpiper_saas:
+                    - --bestsv 
+                    - --inlineGen
+            output_dir: 
+                    - "out1"
+            output_file: 
+                    - 1_adder_rtl_2.sv
+
+# This target uses sandpiper as a frontend to a Vivado based FPGA Bitstream Generation flow 
+    sandpiper_asfrontend:
+        filesets: [rtl]
+        toplevel: [inverter]
+        flow: vivado
+        flow_options:
+            frontends: [sandpipersaas]
+            sandpiper_saas:
+                    - --bestsv 
+                    - --inlineGen
+            output_dir: 
+                    - "out1"
+            output_file: 
+                    - 1_adder_rtl_2.sv
+
+
+
+
+
+

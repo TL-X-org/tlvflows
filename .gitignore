@@ -1,0 +1,12 @@
+*.sv
+*.v
+Makefile
+build_*
+.vscode/*
+build
+*.conf
+*.log
+build/
+*.vcd
+*.conf
+misc/
